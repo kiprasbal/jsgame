@@ -1,0 +1,202 @@
+<html>
+<head>
+    <title>JSGame</title>
+    <style type="text/css">
+        .tank{
+            position: absolute;
+            display:block;
+            z-index:1;
+            width: 50px;
+            height: 50px;
+            background: black;
+            top: 0px;
+            left: 50px;
+        }
+
+        .bullet{
+            display: block;
+            position: absolute;
+            width: 30px;
+            height: 5px;
+            background: red;
+            z-index: 4;
+        }
+        .badguy{
+            position: absolute;
+            z-index: 2;
+            width: 30px;
+            height: 30px;
+            top: 300px;
+            right: 100px;
+            display: block;
+            background: darkblue;
+        }
+        .game_status {
+            display: block;
+            position: fixed;
+            bottom: 0;
+            left:0;
+            padding: 5px;
+            z-index: 2;
+            width: 100%;
+            height: 40px;
+            background-color: #051923;
+            color: white;
+            font-size: 34px;
+            font-weight: bold;
+        }
+        .left{
+            float: left;
+        }
+        body {
+            height: 100%;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-2.1.4.js" type="text/javascript"></script>
+</head>
+<body>
+<div class="tank"></div>
+<div class="game_status">
+    <span class="left">Points: </span> <div class="points left">0</div>
+</div>
+<script type="text/javascript">
+    (function() {
+        var mousePos;
+        var badguys_stack = [];
+        var points = {
+            count: 0
+        };
+
+        $(document).on('mousemove', handleMouseMove);
+        $(document).on('click', shoot);
+        setInterval(getMousePosition, 100);
+
+        function getRandomArbitrary(min, max) {
+            return Math.round(Math.random() * (max - min) + min);
+        }
+
+        function createBadguy(){
+            var badguy = $('<div></div>').addClass('badguy');
+            var height = $('body').height();
+
+            var rand_top = getRandomArbitrary(40, (height - 100));
+            badguy.css({top: rand_top});
+            badguys_stack.push(badguy);
+            $('body').append(badguy);
+
+            var badg_int = setInterval(function(){
+                var position = badguy.position();
+                var new_left = position.left - 5;
+                badguy.css({'left': new_left});
+                if (new_left < 0){
+                    clearInterval(badg_int);
+                    badguy.remove();
+                    return;
+                }
+            }, 50);
+        }
+       //
+       setInterval(createBadguy, getRandomArbitrary(1500, 4000));
+
+        function shoot(){
+            var bullet = $('<div></div>').addClass('bullet');
+
+            bullet.css({
+                'left': 10
+            });
+            if (mousePos != null &&
+                    typeof mousePos.y !== 'undefined'){
+                bullet.css({
+                    'top': mousePos.y
+                });
+            }
+            $('body').append(bullet);
+
+            var movement = function(){
+                var position = bullet.position();
+                var new_left = position.left + 5;
+                bullet.css({'left': new_left});
+
+                if (new_left > $('body').width()){
+                    console.log(intr);
+                    clearInterval(intr);
+                    bullet.remove();
+                    return;
+                }
+
+                // Go trough badguys stack and check for bullet collision
+
+                if (badguys_stack.length > 0) {
+                    for(var i in badguys_stack) {
+                        var badguy = badguys_stack[i];
+                        var badguypos = badguy.position();
+                        var lefttop = {
+                            x: badguypos.left,
+                            y: badguypos.top
+                        };
+
+                        var righttop = {
+                            x: badguypos.left + badguy.width(),
+                            y: badguypos.top
+                        };
+
+                        var leftbottom = {
+                            x: badguypos.left,
+                            y: badguypos.top + badguy.height()
+                        };
+
+                        if (position.left > lefttop.x &&
+                                position.left < righttop.x &&
+                                position.top > lefttop.y &&
+                                position.top < leftbottom.y
+                        ) {
+                            badguy.remove();
+                            console.log(intr);
+                            clearInterval(intr);
+                            bullet.remove();
+                            points.count = points.count+1;
+                            $('.points').html(points.count);
+                            return;
+                        }
+                    }
+                }
+            };
+            // Do shooting
+            var intr = setInterval(movement,5);
+        }
+
+        function handleMouseMove(event) {
+            var dot, eventDoc, doc, body, pageX, pageY;
+            event = event || window.event; // IE-ism
+            if (event.pageX == null && event.clientX != null) {
+                eventDoc = (event.target && event.target.ownerDocument) || document;
+                doc = eventDoc.documentElement;
+                body = eventDoc.body;
+
+                event.pageX = event.clientX +
+                        (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+                        (doc && doc.clientLeft || body && body.clientLeft || 0);
+                event.pageY = event.clientY +
+                        (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+                        (doc && doc.clientTop  || body && body.clientTop  || 0 );
+            }
+
+            mousePos = {
+                x: event.pageX,
+                y: event.pageY
+            };
+        }
+        function getMousePosition() {
+            var pos = mousePos;
+            if (!pos) {
+                console.log('could not track mouse');
+            } else {
+                // Use pos.x and pos.y
+                var tank = $('.tank');
+                tank.css({'top': pos.y - 25});
+            }
+        }
+    })();
+</script>
+</body>
+</html>
