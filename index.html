@@ -93,14 +93,14 @@
                     badguy.remove();
                     return;
                 }
-            }, 50);
+            }, 10);
         }
        //
-       setInterval(createBadguy, getRandomArbitrary(1500, 4000));
+       setInterval(createBadguy, getRandomArbitrary(400, 800));
 
         function shoot(){
             var bullet = $('<div></div>').addClass('bullet');
-
+            var bodyWidth = $('body').width();
             bullet.css({
                 'left': 10
             });
@@ -114,52 +114,50 @@
 
             var movement = function(){
                 var position = bullet.position();
-                var new_left = position.left + 5;
+                var new_left = position.left + 10;
                 bullet.css({'left': new_left});
 
-                if (new_left > $('body').width()){
-                    console.log(intr);
+                if (new_left > bodyWidth){
                     clearInterval(intr);
                     bullet.remove();
                     return;
                 }
 
                 // Go trough badguys stack and check for bullet collision
-
-                if (badguys_stack.length > 0) {
-                    for(var i in badguys_stack) {
-                        var badguy = badguys_stack[i];
-                        var badguypos = badguy.position();
-                        var lefttop = {
-                            x: badguypos.left,
-                            y: badguypos.top
-                        };
-
-                        var righttop = {
-                            x: badguypos.left + badguy.width(),
-                            y: badguypos.top
-                        };
-
-                        var leftbottom = {
-                            x: badguypos.left,
-                            y: badguypos.top + badguy.height()
-                        };
-
-                        if (position.left > lefttop.x &&
-                                position.left < righttop.x &&
-                                position.top > lefttop.y &&
-                                position.top < leftbottom.y
-                        ) {
-                            badguy.remove();
-                            console.log(intr);
-                            clearInterval(intr);
-                            bullet.remove();
-                            points.count = points.count+1;
-                            $('.points').html(points.count);
-                            return;
-                        }
-                    }
-                }
+//                if (badguys_stack.length > 0) {
+//                    for(var i in badguys_stack) {
+//                        var badguy = badguys_stack[i];
+//                        var badguypos = badguy.position();
+//                        var lefttop = {
+//                            x: badguypos.left,
+//                            y: badguypos.top
+//                        };
+//
+//                        var righttop = {
+//                            x: badguypos.left + badguy.width(),
+//                            y: badguypos.top
+//                        };
+//
+//                        var leftbottom = {
+//                            x: badguypos.left,
+//                            y: badguypos.top + badguy.height()
+//                        };
+//
+//                        if (position.left > lefttop.x &&
+//                                position.left < righttop.x &&
+//                                position.top > lefttop.y &&
+//                                position.top < leftbottom.y
+//                        ) {
+//                            badguy.remove();
+//                            delete badguys_stack[i];
+//                            clearInterval(intr);
+//                            bullet.remove();
+//                            points.count = points.count+1;
+//                            $('.points').html(points.count);
+//                            return;
+//                        }
+//                    }
+//                }
             };
             // Do shooting
             var intr = setInterval(movement,5);
